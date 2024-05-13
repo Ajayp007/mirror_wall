@@ -4,6 +4,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:mirror_wall/screens/connectivity/no_internet.dart';
 import 'package:mirror_wall/screens/home/provider/home_provider.dart';
 import 'package:mirror_wall/screens/home/provider/web_provider.dart';
+import 'package:mirror_wall/utils/shared_preference.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -29,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
     pullToRefreshController = PullToRefreshController(
       onRefresh: () {
         inAppWebViewController!.reload();
+        pullToRefreshController!.endRefreshing();
       },
     );
   }
@@ -90,10 +92,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       providerW!.changeUrl(progress / 100);
                     },
                     initialUrlRequest: URLRequest(
-                      url: WebUri(
-                        Uri.parse("https://www.google.com/").toString(),
-                      ),
-                    ),
+                        url: WebUri.uri(
+                            Uri.parse("https://www.${providerW!.search}.com"))),
                   ),
                 ),
                 Container(
@@ -109,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           inAppWebViewController!.loadUrl(
                             urlRequest: URLRequest(
                               url: WebUri.uri(Uri.parse(
-                                  "https://www.google.com/search?q=${txtUrl!.text}")),
+                                  "https://www.${providerW!.search}.com/search?q=${txtUrl!.text}")),
                             ),
                           );
                         },
@@ -127,14 +127,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         onPressed: () {
                           inAppWebViewController!.loadUrl(
                             urlRequest: URLRequest(
-                              url: WebUri("https://www.google.com/search?q="),
+                              url: WebUri(
+                                  "https://www.${providerW!.search}.com"),
                             ),
                           );
                         },
                         icon: const Icon(Icons.home),
                       ),
                       IconButton(
-                        onPressed: () async {},
+                        onPressed: () {
+                          providerR!.getBookMark();
+                        },
                         icon: const Icon(Icons.bookmark_add_outlined),
                       ),
                       IconButton(
@@ -173,37 +176,65 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               RadioListTile(
                 title: const Text("Google"),
-                value: "Google",
+                value: "google",
                 groupValue: providerW!.search,
                 onChanged: (value) {
                   providerR!.changeEngine(value);
+                  inAppWebViewController!.loadUrl(
+                    urlRequest: URLRequest(
+                      url: WebUri.uri(
+                        Uri.parse("https://www.google.co.in/"),
+                      ),
+                    ),
+                  );
                   Navigator.pop(context);
                 },
               ),
               RadioListTile(
                 title: const Text("Yahoo"),
-                value: "Yahoo",
+                value: "yahoo",
                 groupValue: providerW!.search,
                 onChanged: (value) {
                   providerR!.changeEngine(value);
+                  inAppWebViewController!.loadUrl(
+                    urlRequest: URLRequest(
+                      url: WebUri.uri(
+                        Uri.parse("https://www.yahoo.com/"),
+                      ),
+                    ),
+                  );
                   Navigator.pop(context);
                 },
               ),
               RadioListTile(
                 title: const Text("Bing"),
-                value: "Bing",
+                value: "bing",
                 groupValue: providerW!.search,
                 onChanged: (value) {
                   providerR!.changeEngine(value);
+                  inAppWebViewController!.loadUrl(
+                    urlRequest: URLRequest(
+                      url: WebUri.uri(
+                        Uri.parse("https://www.bing.com/?PC=U673"),
+                      ),
+                    ),
+                  );
                   Navigator.pop(context);
                 },
               ),
               RadioListTile(
                 title: const Text("Duck Duck Go"),
-                value: "Duck Duck Go",
+                value: "duck duck go",
                 groupValue: providerW!.search,
                 onChanged: (value) {
                   providerR!.changeEngine(value);
+                  inAppWebViewController!.loadUrl(
+                    urlRequest: URLRequest(
+                      url: WebUri.uri(
+                        Uri.parse("https://duckduckgo.com/"),
+                      ),
+                    ),
+                  );
                   Navigator.pop(context);
                 },
               ),
