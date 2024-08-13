@@ -1,10 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:mirror_wall/screens/connectivity/no_internet.dart';
 import 'package:mirror_wall/screens/home/provider/home_provider.dart';
 import 'package:mirror_wall/screens/home/provider/web_provider.dart';
-import 'package:mirror_wall/utils/shared_preference.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -27,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     context.read<WebProvider>().checkInternet();
+    context.read<HomeProvider>().getBookMark();
     pullToRefreshController = PullToRefreshController(
       onRefresh: () {
         inAppWebViewController!.reload();
@@ -51,7 +50,9 @@ class _HomeScreenState extends State<HomeScreen> {
             itemBuilder: (context) {
               return [
                 PopupMenuItem(
-                  onTap: () {},
+                  onTap: () {
+                    showBookMark();
+                  },
                   child: const Row(
                     children: [
                       Icon(Icons.bookmark),
@@ -135,8 +136,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: const Icon(Icons.home),
                       ),
                       IconButton(
-                        onPressed: () {
-                          providerR!.getBookMark();
+                        onPressed: () async {
+                          var link = await inAppWebViewController!.getOriginalUrl();
+                          providerR!.setLink1(link.toString());
                         },
                         icon: const Icon(Icons.bookmark_add_outlined),
                       ),
@@ -240,6 +242,41 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+  void showBookMark() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return BottomSheet(
+          onClosing: () {},
+          builder: (context) {
+            return ListView.builder(
+              itemCount: providerW!.book.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  trailing: IconButton(onPressed: () {
+                    providerW!.deleteLink(index);
+                     Navigator.pop(context);
+                  }, icon: const Icon(Icons.delete)),
+                  onTap: () {
+                    inAppWebViewController!.loadUrl(
+                      urlRequest: URLRequest(
+                        url: WebUri(providerW!.book[index]),
+                      ),
+                    );
+                    Navigator.pop(context);
+                  },
+                  title: Text(
+                    providerW!.book[index],
+                    style: const TextStyle(overflow: TextOverflow.ellipsis),
+                  ),
+                );
+              },
+            );
+          },
         );
       },
     );

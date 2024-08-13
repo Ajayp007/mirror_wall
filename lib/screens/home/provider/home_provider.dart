@@ -16,14 +16,24 @@ class HomeProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addBookMark(List<String> addBook) async {
-    if (getBook() == null) {
-      book = [];
-    } else {
-      addBook = (await getBook())!;
+  void setLink1(String link) {
+    book.add(link);
+    SharedHelper.helper.setBook(book);
+    getBookMark();
+    notifyListeners();
+  }
+
+  Future<void> getBookMark() async {
+    var link = await SharedHelper.helper.getBook();
+    if (link != null) {
+      book = link;
     }
     notifyListeners();
   }
 
-  void getBookMark() {}
+  void deleteLink(int index) {
+    book.removeAt(index);
+    SharedHelper.helper.setBook(book);
+    notifyListeners();
+  }
 }
